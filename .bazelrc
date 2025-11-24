@@ -1,0 +1,27 @@
+common --announce_rc
+common --color=yes
+common --curses=yes
+
+common --check_direct_dependencies=warning
+
+build --action_env=CC=gcc
+build --action_env=CXX=g++
+
+build:base --cxxopt=-std=gnu++23
+build:base --cxxopt=-Wall
+build:base --cxxopt=-Wextra
+build:base --cxxopt=-Wpedantic
+build:base --cxxopt=-Wconversion
+build:base --cxxopt=-Wsign-conversion
+build:base --cxxopt=-Wcast-align
+build:base --cxxopt=-Wcast-qual
+build:base --cxxopt=-Wformat=2
+build:base --cxxopt=-Winit-self
+build:base --cxxopt=-Wlogical-op
+build:base --cxxopt=-Wmissing-declarations
+build:base --cxxopt=-Wmissing-include-dirs
+build:base --cxxopt=-Wnoexcept
+build:base --cxxopt=-Woverloaded-virtual
+build:base --cxxopt=-Wredundant-decls
+build:base --cxxopt=-Wstrict-null-sentinel
+build:base --cxxopt=-Wundef
