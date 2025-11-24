@@ -54,6 +54,7 @@ int main(int argc, char** argv) {
       }
 
       if (flux::Key c = raw_term.GetKey(); c != flux::Key::kNone) {
+        flux::Buffer::Position pos;
         switch (c) {
           case flux::Key::kCtrlQ: {
             std::cout << "\033[2J\033[H";
@@ -61,25 +62,22 @@ int main(int argc, char** argv) {
             return 0;
           }
           case flux::Key::kBackspace: {
-            flux::Buffer::Position pos = buffer.Delete(
+            pos = buffer.Delete(
                 flux::Buffer::Position{.row = cursor.r, .col = cursor.c});
-            cursor.r = pos.row;
-            cursor.c = pos.col;
           } break;
           case flux::Key::kReturn: {
-            flux::Buffer::Position pos = buffer.BreakLine(
+            pos = buffer.BreakLine(
                 flux::Buffer::Position{.row = cursor.r, .col = cursor.c});
-            cursor.r = pos.row;
-            cursor.c = pos.col;
           } break;
           default: {
-            flux::Buffer::Position pos = buffer.Insert(
+            pos = buffer.Insert(
                 flux::Buffer::Position{.row = cursor.r, .col = cursor.c},
                 static_cast<char>(c));
-            cursor.r = pos.row;
-            cursor.c = pos.col;
           } break;
         }
+
+        cursor.r = pos.row;
+        cursor.c = pos.col;
       }
 
       std::cout.flush();
