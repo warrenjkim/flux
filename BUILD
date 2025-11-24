@@ -4,6 +4,6 @@ cc_binary(
         "main.cc",
     ],
     deps = [
-        "//terminal:raw_term",
+        "//terminal:raw_terminal",
     ],
 )

@@ -1,10 +1,10 @@
 cc_library(
-    name = "raw_term",
+    name = "raw_terminal",
     srcs = [
-        "raw_term.cc",
+        "raw_terminal.cc",
     ],
     hdrs = [
-        "raw_term.h",
+        "raw_terminal.h",
     ],
     visibility = [
         "//visibility:public",

@@ -7,23 +7,23 @@
 
 namespace flux {
 
-class RawTerm {
+class RawTerminal {
  public:
-  RawTerm();
-  ~RawTerm();
+  RawTerminal();
+  ~RawTerminal();
 
   Key GetKey() const;
-
- private:
-  Key ReadKey() const;
-
-  Key ResolveEscapeSequence() const;
 
   // strictly speaking, [Enable|Disable]RawMode is a const function, but it is
   // not marked const since it modifies global terminal state.
   void EnableRawMode();
 
   void DisableRawMode();
+
+ private:
+  Key ReadKey() const;
+
+  Key ResolveEscapeSequence() const;
 
   termios cooked_;
 };

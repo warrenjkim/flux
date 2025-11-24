@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "terminal/keyboard.h"
-#include "terminal/raw_term.h"
+#include "terminal/raw_terminal.h"
 
 int main(int argc, char** argv) {
   std::vector<std::string> lines;
@@ -31,8 +31,10 @@ int main(int argc, char** argv) {
     size_t c = 0;
   } cursor;
 
+  flux::RawTerminal raw_term;
+  raw_term.EnableRawMode();
   {
-    flux::RawTerm raw_term;
+    flux::VectorBuffer buffer(std::move(lines));
     while (true) {
       std::cout << "\033[2J\033[H";
       for (size_t i = 0; i < lines.size(); i++) {
@@ -51,6 +53,7 @@ int main(int argc, char** argv) {
         switch (c) {
           case flux::Key::kCtrlQ:
             std::cout << "\033[2J\033[H";
+            raw_term.DisableRawMode();
             return 0;
           case flux::Key::kBackspace:
             if (cursor.c > 0) {
@@ -68,6 +71,8 @@ int main(int argc, char** argv) {
 
       std::cout.flush();
     }
+
+    raw_term.DisableRawMode();
   }
 
   return 0;
