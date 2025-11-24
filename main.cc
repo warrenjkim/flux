@@ -1,6 +1,9 @@
 #include <fstream>
 #include <iostream>
+#include <utility>
 
+#include "buffer/buffer.h"
+#include "buffer/vector_buffer.h"
 #include "terminal/keyboard.h"
 #include "terminal/raw_terminal.h"
 
@@ -37,36 +40,44 @@ int main(int argc, char** argv) {
     flux::VectorBuffer buffer(std::move(lines));
     while (true) {
       std::cout << "\033[2J\033[H";
-      for (size_t i = 0; i < lines.size(); i++) {
-        for (size_t j = 0; j < lines[i].size(); j++) {
-          if (cursor.r == i && cursor.c == j) {
-            std::cout << '~';
+      for (size_t i = 0; i < buffer.Lines(); i++) {
+        std::string line = buffer.GetLine(i);
+        if (i == cursor.r) {
+          if (cursor.c == line.length()) {
+            line.push_back('~');
           } else {
-            std::cout << lines[i][j];
+            line[cursor.c] = '~';
           }
         }
 
-        std::cout << "\r\n";
+        std::cout << line << "\r\n";
       }
 
       if (flux::Key c = raw_term.GetKey(); c != flux::Key::kNone) {
+        flux::Buffer::Position pos;
         switch (c) {
-          case flux::Key::kCtrlQ:
+          case flux::Key::kCtrlQ: {
             std::cout << "\033[2J\033[H";
             raw_term.DisableRawMode();
             return 0;
-          case flux::Key::kBackspace:
-            if (cursor.c > 0) {
-              lines[cursor.r].erase(cursor.c--, 1);
-            }
-
-            break;
-          default:
-            lines[cursor.r].insert(lines[cursor.r].begin() + cursor.c++, 1,
-                                   static_cast<char>(c));
-
-            break;
+          }
+          case flux::Key::kBackspace: {
+            pos = buffer.Delete(
+                flux::Buffer::Position{.row = cursor.r, .col = cursor.c});
+          } break;
+          case flux::Key::kReturn: {
+            pos = buffer.BreakLine(
+                flux::Buffer::Position{.row = cursor.r, .col = cursor.c});
+          } break;
+          default: {
+            pos = buffer.Insert(
+                flux::Buffer::Position{.row = cursor.r, .col = cursor.c},
+                static_cast<char>(c));
+          } break;
         }
+
+        cursor.r = pos.row;
+        cursor.c = pos.col;
       }
 
       std::cout.flush();

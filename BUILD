@@ -4,6 +4,8 @@ cc_binary(
         "main.cc",
     ],
     deps = [
+        "//buffer",
+        "//buffer:vector_buffer",
         "//terminal:raw_terminal",
     ],
 )
