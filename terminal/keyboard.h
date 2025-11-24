@@ -143,7 +143,7 @@ enum class Key {
   kBackspace,
 
   kTab = kCtrlI,
-  kEnter = kCtrlM,
+  kReturn = kCtrlM,
 
   // escape sequences
   kArrowUp = 1000,
