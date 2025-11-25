@@ -1,9 +1,12 @@
 #pragma once
 
+#include <sys/ioctl.h>
+#include <sys/ttycom.h>
 #include <termios.h>
 #include <unistd.h>
 
 #include "terminal/keyboard.h"
+#include "view/viewport.h"
 
 namespace flux {
 
@@ -19,6 +22,8 @@ class RawTerminal {
   void EnableRawMode();
 
   void DisableRawMode();
+
+  ViewPort GetTerminalSize() const;
 
  private:
   Key ReadKey() const;

@@ -1,6 +1,7 @@
 #include "terminal/raw_terminal.h"
 
 #include "terminal/keyboard.h"
+#include "view/viewport.h"
 
 namespace flux {
 
@@ -34,6 +35,15 @@ void RawTerminal::EnableRawMode() {
 
 void RawTerminal::DisableRawMode() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &cooked_);
+}
+
+ViewPort RawTerminal::GetTerminalSize() const {
+  winsize ws;
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0) {
+    return ViewPort{.rows = size_t{ws.ws_row}, .cols = size_t{ws.ws_col}};
+  }
+
+  return ViewPort{};
 }
 
 Key RawTerminal::ReadKey() const {

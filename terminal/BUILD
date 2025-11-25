@@ -11,6 +11,7 @@ cc_library(
     ],
     deps = [
         ":keyboard",
+        "//view:viewport",
     ],
 )
 
