@@ -1,5 +1,8 @@
 #include "terminal/raw_terminal.h"
 
+#include <iostream>
+#include <string_view>
+
 #include "terminal/keyboard.h"
 #include "view/viewport.h"
 
@@ -45,6 +48,8 @@ ViewPort RawTerminal::GetTerminalSize() const {
 
   return ViewPort{};
 }
+
+void Write(std::string_view buffer) { std::cout << buffer; }
 
 Key RawTerminal::ReadKey() const {
   char c;

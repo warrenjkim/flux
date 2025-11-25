@@ -4,6 +4,7 @@
 #include <sys/ttycom.h>
 #include <termios.h>
 #include <unistd.h>
+#include <string_view>
 
 #include "terminal/keyboard.h"
 #include "view/viewport.h"
@@ -24,6 +25,8 @@ class RawTerminal {
   void DisableRawMode();
 
   ViewPort GetTerminalSize() const;
+
+  void Write(std::string_view buffer);
 
  private:
   Key ReadKey() const;
