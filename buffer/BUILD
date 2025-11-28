@@ -6,9 +6,7 @@ cc_library(
     hdrs = [
         "vector_buffer.h",
     ],
-    visibility = [
-        "//visibility:public",
-    ],
+    visibility = ["//visibility:public"],
     deps = [
         ":buffer",
     ],
@@ -19,7 +17,5 @@ cc_library(
     hdrs = [
         "buffer.h",
     ],
-    visibility = [
-        "//visibility:public",
-    ],
+    visibility = ["//visibility:public"],
 )
