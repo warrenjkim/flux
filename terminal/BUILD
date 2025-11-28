@@ -6,11 +6,11 @@ cc_library(
     hdrs = [
         "raw_terminal.h",
     ],
-    visibility = [
-        "//visibility:public",
-    ],
+    visibility = ["//visibility:public"],
     deps = [
         ":keyboard",
+        "//view:cursor",
+        "//view:viewport",
     ],
 )
 
@@ -19,7 +19,5 @@ cc_library(
     hdrs = [
         "keyboard.h",
     ],
-    visibility = [
-        "//visibility:public",
-    ],
+    visibility = ["//visibility:public"],
 )

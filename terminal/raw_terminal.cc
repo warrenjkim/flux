@@ -1,6 +1,10 @@
 #include "terminal/raw_terminal.h"
 
+#include <iostream>
+#include <string_view>
+
 #include "terminal/keyboard.h"
+#include "view/viewport.h"
 
 namespace flux {
 
@@ -8,15 +12,37 @@ RawTerminal::RawTerminal() { tcgetattr(STDIN_FILENO, &cooked_); }
 
 RawTerminal::~RawTerminal() {}
 
-Key RawTerminal::GetKey() const {
+Key RawTerminal::GetKey() {
   switch (Key k = ReadKey()) {
     case Key::kEscape:
       return ResolveEscapeSequence();
+    case Key::kCtrlA:
+    case Key::kCtrlB:
+    case Key::kCtrlC:
+    case Key::kCtrlD:
+    case Key::kCtrlE:
+    case Key::kCtrlF:
+    case Key::kCtrlG:
+    case Key::kCtrlH:
+    case Key::kCtrlJ:
+    case Key::kCtrlK:
+    case Key::kCtrlL:
+    case Key::kCtrlN:
+    case Key::kCtrlO:
+    case Key::kCtrlP:
+    case Key::kCtrlR:
+    case Key::kCtrlS:
+    case Key::kCtrlT:
+    case Key::kCtrlU:
+    case Key::kCtrlV:
+    case Key::kCtrlW:
+    case Key::kCtrlX:
+    case Key::kCtrlY:
+    case Key::kCtrlZ:
+      return Key::kNone;
     default:
       return k;
   }
-
-  return Key::kNone;
 }
 
 void RawTerminal::EnableRawMode() {
@@ -36,7 +62,50 @@ void RawTerminal::DisableRawMode() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &cooked_);
 }
 
-Key RawTerminal::ReadKey() const {
+ViewPort RawTerminal::GetTerminalSize() const {
+  winsize ws;
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0) {
+    return ViewPort{.rows = size_t{ws.ws_row}, .cols = size_t{ws.ws_col}};
+  }
+
+  return ViewPort{};
+}
+
+void RawTerminal::EnterAlternateBuffer() {
+  std::cout << "\x1b[?1049h";
+  Flush();
+}
+
+void RawTerminal::ExitAlternateBuffer() {
+  std::cout << "\x1b[?1049l";
+  Flush();
+}
+
+void RawTerminal::ResetCursor() { std::cout << "\x1b[H"; }
+
+void RawTerminal::ShowCursor() { std::cout << "\x1b[?25h"; }
+
+void RawTerminal::HideCursor() { std::cout << "\x1b[?25l"; }
+
+void RawTerminal::MoveCursor(Cursor cursor) {
+  std::cout << "\x1b[" << (cursor.row + 1) << ";" << (cursor.col + 1) << "H";
+}
+
+void RawTerminal::Write(char c) { std::cout << c; }
+
+void RawTerminal::Write(std::string_view buffer) { std::cout << buffer; }
+
+void RawTerminal::WriteLine(std::string_view buffer) {
+  std::cout << buffer << "\r\n";
+}
+
+void RawTerminal::Flush() { std::cout.flush(); }
+
+void RawTerminal::ClearLine() { std::cout << "\x1b[K"; }
+
+void RawTerminal::ClearScreen() { std::cout << "\x1b[2J\x1b[H"; }
+
+Key RawTerminal::ReadKey() {
   char c;
   if (read(STDIN_FILENO, &c, 1) == 1) {
     return static_cast<Key>(c);
@@ -45,7 +114,7 @@ Key RawTerminal::ReadKey() const {
   return Key::kNone;
 }
 
-Key RawTerminal::ResolveEscapeSequence() const {
+Key RawTerminal::ResolveEscapeSequence() {
   if (ReadKey() == Key::kLeftBracket) {
     switch (ReadKey()) {
       case Key::kA:

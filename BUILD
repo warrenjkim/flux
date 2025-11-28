@@ -7,5 +7,6 @@ cc_binary(
         "//buffer",
         "//buffer:vector_buffer",
         "//terminal:raw_terminal",
+        "//view",
     ],
 )

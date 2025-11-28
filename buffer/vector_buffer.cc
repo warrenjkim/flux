@@ -21,6 +21,10 @@ size_t VectorBuffer::Size() const {
 
 std::string VectorBuffer::GetLine(size_t row) const { return buffer_[row]; }
 
+size_t VectorBuffer::GetLineLength(size_t row) const {
+  return buffer_[row].size();
+}
+
 Buffer::Position VectorBuffer::Insert(Buffer::Position pos, char c) {
   std::string& line = buffer_[pos.row];
   if (pos.col == line.length()) {
@@ -49,14 +53,16 @@ Buffer::Position VectorBuffer::Delete(Buffer::Position pos) {
   }
 
   if (pos.col == 0) {
-    buffer_.pop_back();
+    std::string line = buffer_[pos.row];
+    buffer_.erase(buffer_.begin() + pos.row);
     pos.row--;
-    pos.col = buffer_.back().length();
+    pos.col = buffer_[pos.row].size();
+    buffer_[pos.row].append(std::move(line));
 
     return pos;
   }
 
-  buffer_[pos.row].erase(pos.col--, 1);
+  buffer_[pos.row].erase(--pos.col, 1);
 
   return pos;
 }

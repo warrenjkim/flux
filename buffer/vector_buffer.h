@@ -20,6 +20,8 @@ class VectorBuffer : public Buffer {
 
   virtual std::string GetLine(size_t row) const override;
 
+  virtual size_t GetLineLength(size_t row) const override;
+
   virtual Position Insert(Position pos, char c) override;
 
   virtual Position BreakLine(Position pos) override;
