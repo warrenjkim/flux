@@ -20,6 +20,8 @@ class Buffer {
 
   virtual std::string GetLine(size_t row) const = 0;
 
+  virtual size_t GetLineLength(size_t row) const = 0;
+
   virtual Position Insert(Position pos, char c) = 0;
 
   virtual Position BreakLine(Position pos) = 0;

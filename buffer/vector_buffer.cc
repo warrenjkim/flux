@@ -21,6 +21,10 @@ size_t VectorBuffer::Size() const {
 
 std::string VectorBuffer::GetLine(size_t row) const { return buffer_[row]; }
 
+size_t VectorBuffer::GetLineLength(size_t row) const {
+  return buffer_[row].size();
+}
+
 Buffer::Position VectorBuffer::Insert(Buffer::Position pos, char c) {
   std::string& line = buffer_[pos.row];
   if (pos.col == line.length()) {
