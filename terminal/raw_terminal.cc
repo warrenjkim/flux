@@ -12,7 +12,7 @@ RawTerminal::RawTerminal() { tcgetattr(STDIN_FILENO, &cooked_); }
 
 RawTerminal::~RawTerminal() {}
 
-Key RawTerminal::GetKey() const {
+Key RawTerminal::GetKey() {
   switch (Key k = ReadKey()) {
     case Key::kEscape:
       return ResolveEscapeSequence();
@@ -49,9 +49,41 @@ ViewPort RawTerminal::GetTerminalSize() const {
   return ViewPort{};
 }
 
-void Write(std::string_view buffer) { std::cout << buffer; }
+void RawTerminal::EnterAlternateBuffer() {
+  std::cout << "\x1b[?1049h";
+  Flush();
+}
 
-Key RawTerminal::ReadKey() const {
+void RawTerminal::ExitAlternateBuffer() {
+  std::cout << "\x1b[?1049l";
+  Flush();
+}
+
+void RawTerminal::ResetCursor() { std::cout << "\x1b[H"; }
+
+void RawTerminal::ShowCursor() { std::cout << "\x1b[?25h"; }
+
+void RawTerminal::HideCursor() { std::cout << "\x1b[?25l"; }
+
+void RawTerminal::MoveCursor(Cursor cursor) {
+  std::cout << "\x1b[" << (cursor.row + 1) << ";" << (cursor.col + 1) << "H";
+}
+
+void RawTerminal::Write(char c) { std::cout << c; }
+
+void RawTerminal::Write(std::string_view buffer) { std::cout << buffer; }
+
+void RawTerminal::WriteLine(std::string_view buffer) {
+  std::cout << buffer << "\r\n";
+}
+
+void RawTerminal::Flush() { std::cout.flush(); }
+
+void RawTerminal::ClearLine() { std::cout << "\x1b[K"; }
+
+void RawTerminal::ClearScreen() { std::cout << "\x1b[2J\x1b[H"; }
+
+Key RawTerminal::ReadKey() {
   char c;
   if (read(STDIN_FILENO, &c, 1) == 1) {
     return static_cast<Key>(c);
@@ -60,7 +92,7 @@ Key RawTerminal::ReadKey() const {
   return Key::kNone;
 }
 
-Key RawTerminal::ResolveEscapeSequence() const {
+Key RawTerminal::ResolveEscapeSequence() {
   if (ReadKey() == Key::kLeftBracket) {
     switch (ReadKey()) {
       case Key::kA:
