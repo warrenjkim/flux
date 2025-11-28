@@ -9,7 +9,8 @@
 
 namespace flux {
 
-View::View(Buffer* buffer_) : buffer_(*buffer_) {}
+View::View(Buffer* buffer_, ViewPort vp)
+    : buffer_(*buffer_), viewport_(vp), cursor_(Cursor{.row = 0, .col = 0}) {}
 
 void View::Draw(RawTerminal* terminal) {
   for (size_t i = 0; i < viewport_.rows; i++) {
