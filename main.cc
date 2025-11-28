@@ -6,6 +6,7 @@
 #include "buffer/vector_buffer.h"
 #include "terminal/keyboard.h"
 #include "terminal/raw_terminal.h"
+#include "view/view.h"
 
 int main(int argc, char** argv) {
   std::vector<std::string> lines;
@@ -29,60 +30,57 @@ int main(int argc, char** argv) {
     lines.push_back("");
   }
 
-  struct {
-    size_t r = 0;
-    size_t c = 0;
-  } cursor;
-
   flux::RawTerminal raw_term;
   raw_term.EnableRawMode();
+  raw_term.EnterAlternateBuffer();
   {
     flux::VectorBuffer buffer(std::move(lines));
+    flux::View view(&buffer);
+    flux::ViewPort vp;
+    view.Resize(vp = raw_term.GetTerminalSize());
+    raw_term.ClearScreen();
     while (true) {
-      std::cout << "\033[2J\033[H";
-      for (size_t i = 0; i < buffer.Lines(); i++) {
-        std::string line = buffer.GetLine(i);
-        if (i == cursor.r) {
-          if (cursor.c == line.length()) {
-            line.push_back('~');
-          } else {
-            line[cursor.c] = '~';
-          }
-        }
-
-        std::cout << line << "\r\n";
-      }
+      raw_term.ResetCursor();
+      raw_term.HideCursor();
+      view.Draw(&raw_term);
+      raw_term.MoveCursor(view.GetCursor());
+      raw_term.ShowCursor();
+      raw_term.Flush();
 
       if (flux::Key c = raw_term.GetKey(); c != flux::Key::kNone) {
-        flux::Buffer::Position pos;
         switch (c) {
           case flux::Key::kCtrlQ: {
-            std::cout << "\033[2J\033[H";
+            raw_term.ExitAlternateBuffer();
             raw_term.DisableRawMode();
             return 0;
-          }
+          };
           case flux::Key::kBackspace: {
-            pos = buffer.Delete(
-                flux::Buffer::Position{.row = cursor.r, .col = cursor.c});
+            view.UpdateCursor(buffer.Delete(view.GetBufferPosition()));
           } break;
           case flux::Key::kReturn: {
-            pos = buffer.BreakLine(
-                flux::Buffer::Position{.row = cursor.r, .col = cursor.c});
+            view.UpdateCursor(buffer.BreakLine(view.GetBufferPosition()));
+          } break;
+          case flux::Key::kArrowUp: {
+            view.MoveCursorUp();
+          } break;
+          case flux::Key::kArrowDown: {
+            view.MoveCursorDown();
+          } break;
+          case flux::Key::kArrowLeft: {
+            view.MoveCursorLeft();
+          } break;
+          case flux::Key::kArrowRight: {
+            view.MoveCursorRight();
           } break;
           default: {
-            pos = buffer.Insert(
-                flux::Buffer::Position{.row = cursor.r, .col = cursor.c},
-                static_cast<char>(c));
+            view.UpdateCursor(
+                buffer.Insert(view.GetBufferPosition(), static_cast<char>(c)));
           } break;
         }
-
-        cursor.r = pos.row;
-        cursor.c = pos.col;
       }
-
-      std::cout.flush();
     }
 
+    raw_term.ExitAlternateBuffer();
     raw_term.DisableRawMode();
   }
 
