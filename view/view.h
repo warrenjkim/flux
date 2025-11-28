@@ -9,7 +9,7 @@ namespace flux {
 
 class View {
  public:
-  explicit View(Buffer* buffer);
+  explicit View(Buffer* buffer, ViewPort vp);
 
   void Draw(RawTerminal* terminal);
 

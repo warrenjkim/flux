@@ -35,9 +35,7 @@ int main(int argc, char** argv) {
   raw_term.EnterAlternateBuffer();
   {
     flux::VectorBuffer buffer(std::move(lines));
-    flux::View view(&buffer);
-    flux::ViewPort vp;
-    view.Resize(vp = raw_term.GetTerminalSize());
+    flux::View view(&buffer, raw_term.GetTerminalSize());
     raw_term.ClearScreen();
     while (true) {
       raw_term.ResetCursor();
