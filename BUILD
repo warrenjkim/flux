@@ -6,6 +6,7 @@ cc_binary(
     deps = [
         "//buffer",
         "//buffer:vector_buffer",
+        "//editor",
         "//terminal:raw_terminal",
         "//view",
     ],

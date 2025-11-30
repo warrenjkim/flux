@@ -31,7 +31,7 @@ Key RawTerminal::GetKey() {
     case Key::kCtrlO:
     case Key::kCtrlP:
     case Key::kCtrlR:
-    case Key::kCtrlS:
+    // case Key::kCtrlS:
     case Key::kCtrlT:
     case Key::kCtrlU:
     case Key::kCtrlV:
