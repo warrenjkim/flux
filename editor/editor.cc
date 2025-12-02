@@ -13,7 +13,7 @@
 
 namespace flux {
 
-Editor::Editor() {}
+Editor::Editor() : running_(true) { BindKeys(); }
 
 void Editor::Run(std::string_view path) {
   flux::RawTerminal raw_term;
@@ -21,15 +21,20 @@ void Editor::Run(std::string_view path) {
   raw_term.EnterAlternateBuffer();
   raw_term.ClearScreen();
 
-  buffer_ = OpenFile(path);
+  path_ = std::string(path);
+  if (path_.empty()) {
+    buffer_ = std::make_unique<VectorBuffer>(std::vector<std::string>{""});
+  } else {
+    buffer_ = OpenFile(path_);
+  }
+
   ViewPort vp = raw_term.GetTerminalSize();
   vp.rows -= 2;
   view_ = MakeView(buffer_.get(), vp);
   status_line_ = std::make_unique<StatusLine>(vp.cols);
   command_line_ = std::make_unique<CommandLine>(vp.cols);
 
-  bool exit = false;
-  while (!exit) {
+  while (running_) {
     raw_term.ResetCursor();
     raw_term.HideCursor();
 
@@ -47,44 +52,52 @@ void Editor::Run(std::string_view path) {
     raw_term.ShowCursor();
     raw_term.Flush();
 
-    if (flux::Key c = raw_term.GetKey(); c != flux::Key::kNone) {
-      switch (c) {
-        case flux::Key::kCtrlQ: {
-          exit = true;
-        } break;
-        case flux::Key::kCtrlS: {
-          WriteFile(path);
-          command_line_->SetMessage(
-              std::string("wrote to \"").append(path).append("\""));
-        } break;
-        case flux::Key::kBackspace: {
-          view_->UpdateCursor(buffer_->Delete(view_->GetBufferPosition()));
-        } break;
-        case flux::Key::kReturn: {
-          view_->UpdateCursor(buffer_->BreakLine(view_->GetBufferPosition()));
-        } break;
-        case flux::Key::kArrowUp: {
-          view_->MoveCursorUp();
-        } break;
-        case flux::Key::kArrowDown: {
-          view_->MoveCursorDown();
-        } break;
-        case flux::Key::kArrowLeft: {
-          view_->MoveCursorLeft();
-        } break;
-        case flux::Key::kArrowRight: {
-          view_->MoveCursorRight();
-        } break;
-        default: {
-          view_->UpdateCursor(buffer_->Insert(view_->GetBufferPosition(),
-                                              static_cast<char>(c)));
-        } break;
-      }
+    if (flux::Key key = raw_term.GetKey(); key != flux::Key::kNone) {
+      key_handler_.Handle(key);
     }
   }
 
   raw_term.ExitAlternateBuffer();
   raw_term.DisableRawMode();
+}
+
+void Editor::BindKeys() {
+  key_handler_.Bind(Key::kCtrlQ, [this]() -> void { running_ = false; });
+
+  key_handler_.Bind(Key::kCtrlS, [this]() -> void {
+    if (path_.empty()) {
+      command_line_->SetMessage("path is empty. not saving.");
+      return;
+    }
+
+    WriteFile(path_);
+    command_line_->SetMessage(
+        std::string("wrote to \"").append(path_).append("\""));
+  });
+
+  key_handler_.Bind(Key::kBackspace, [this]() -> void {
+    view_->UpdateCursor(buffer_->Delete(view_->GetBufferPosition()));
+  });
+
+  key_handler_.Bind(Key::kReturn, [this]() -> void {
+    view_->UpdateCursor(buffer_->BreakLine(view_->GetBufferPosition()));
+  });
+
+  key_handler_.Bind(Key::kArrowUp, [this]() -> void { view_->MoveCursorUp(); });
+
+  key_handler_.Bind(Key::kArrowDown,
+                    [this]() -> void { view_->MoveCursorDown(); });
+
+  key_handler_.Bind(Key::kArrowLeft,
+                    [this]() -> void { view_->MoveCursorLeft(); });
+
+  key_handler_.Bind(Key::kArrowRight,
+                    [this]() -> void { view_->MoveCursorRight(); });
+
+  key_handler_.SetFallback([this](Key key) -> void {
+    view_->UpdateCursor(
+        buffer_->Insert(view_->GetBufferPosition(), static_cast<char>(key)));
+  });
 }
 
 std::unique_ptr<Buffer> Editor::OpenFile(std::string_view path) const {

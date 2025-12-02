@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "buffer/buffer.h"
+#include "editor/key_handler.h"
 #include "view/command_line.h"
 #include "view/status_line.h"
 #include "view/view.h"
@@ -16,16 +17,21 @@ class Editor {
   void Run(std::string_view path = "");
 
  private:
+  void BindKeys();
+
   std::unique_ptr<Buffer> OpenFile(std::string_view path) const;
 
   size_t WriteFile(std::string_view path) const;
 
   std::unique_ptr<View> MakeView(Buffer* buffer, ViewPort vp) const;
 
+  std::string path_;
   std::unique_ptr<Buffer> buffer_;
   std::unique_ptr<StatusLine> status_line_;
   std::unique_ptr<CommandLine> command_line_;
   std::unique_ptr<View> view_;
+  KeyHandler key_handler_;
+  bool running_;
 };
 
 }  // namespace flux
