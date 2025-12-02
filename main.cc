@@ -8,8 +8,7 @@ int main(int argc, char** argv) {
     path = argv[1];
   }
 
-  flux::Editor editor;
-  editor.Run(path);
+  flux::Editor().Run(path);
 
   return 0;
 }
