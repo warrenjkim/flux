@@ -13,6 +13,8 @@
 
 namespace flux {
 
+constexpr std::string_view kUnnamedFile = "[unnamed file]";
+
 Editor::Editor() : mode_(Mode::kNormal), running_(true) { BindKeys(); }
 
 void Editor::Run(std::string_view path) {
@@ -42,8 +44,10 @@ void Editor::Run(std::string_view path) {
     raw_term.WriteLine();
 
     status_line_->Draw(
-        &raw_term, StatusLine::Options{
-                       .file_name = path, .delimiter = '=', .left_padding = 2});
+        &raw_term,
+        StatusLine::Options{.file_name = path.empty() ? kUnnamedFile : path,
+                            .delimiter = '=',
+                            .left_padding = 2});
     raw_term.WriteLine();
 
     command_line_->Draw(&raw_term);
