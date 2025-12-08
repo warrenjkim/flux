@@ -1,16 +1,21 @@
 cc_library(
     name = "editor",
     srcs = [
+        "commands.cc",
         "editor.cc",
+        "key_handler.cc",
     ],
     hdrs = [
         "editor.h",
+        "key_handler.h",
     ],
     visibility = ["//visibility:public"],
     deps = [
-        ":key_handler",
+        ":commands",
+        ":mode",
         "//buffer",
         "//buffer:vector_buffer",
+        "//terminal:keyboard",
         "//view",
         "//view:command_line",
         "//view:status_line",
@@ -18,15 +23,20 @@ cc_library(
 )
 
 cc_library(
-    name = "key_handler",
-    srcs = [
-        "key_handler.cc",
-    ],
+    name = "commands",
     hdrs = [
-        "key_handler.h",
+        "commands.h",
     ],
     visibility = ["//visibility:public"],
     deps = [
         "//terminal:keyboard",
     ],
+)
+
+cc_library(
+    name = "mode",
+    hdrs = [
+        "mode.h",
+    ],
+    visibility = ["//visibility:public"],
 )

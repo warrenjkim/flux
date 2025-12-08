@@ -1,25 +1,27 @@
 #include "editor/key_handler.h"
 
+#include "editor/commands.h"
+
 namespace flux {
 
-bool KeyHandler::Bind(Key key, Handler handler, bool override) {
+bool KeyHandler::Bind(Key key, Command::Function command, bool override) {
   if (override) {
-    map_[key] = std::move(handler);
+    map_[key] = command;
     return true;
   }
 
-  return map_.insert({key, std::move(handler)}).second;
+  return map_.insert({key, command}).second;
 }
 
-void KeyHandler::SetFallback(Fallback fallback) {
-  fallback_ = std::move(fallback);
+void KeyHandler::SetFallback(Command::Function fallback) {
+  fallback_ = fallback;
 }
 
-void KeyHandler::Handle(Key key) {
+Command::Function KeyHandler::GetCommand(Key key) const {
   if (auto it = map_.find(key); it != map_.end()) {
-    it->second();
+    return it->second;
   } else {
-    fallback_(key);
+    return fallback_;
   }
 }
 
