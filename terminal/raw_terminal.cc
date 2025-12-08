@@ -16,20 +16,20 @@ Key RawTerminal::GetKey() {
   switch (Key k = ReadKey()) {
     case Key::kEscape:
       return ResolveEscapeSequence();
-    case Key::kCtrlA:
+    // case Key::kCtrlA:
     case Key::kCtrlB:
     case Key::kCtrlC:
     case Key::kCtrlD:
-    case Key::kCtrlE:
-    case Key::kCtrlF:
+    // case Key::kCtrlE:
+    // case Key::kCtrlF:
     case Key::kCtrlG:
-    case Key::kCtrlH:
+    // case Key::kCtrlH:
     case Key::kCtrlJ:
     case Key::kCtrlK:
     case Key::kCtrlL:
-    case Key::kCtrlN:
+    // case Key::kCtrlN:
     case Key::kCtrlO:
-    case Key::kCtrlP:
+    // case Key::kCtrlP:
     case Key::kCtrlR:
     // case Key::kCtrlS:
     case Key::kCtrlT:
