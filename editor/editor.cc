@@ -94,6 +94,26 @@ void Editor::BindKeys() {
   key_handler_.Bind(Key::kArrowRight,
                     [this]() -> void { view_->MoveCursorRight(); });
 
+  key_handler_.Bind(Key::kCtrlP, [this]() -> void { view_->MoveCursorUp(); });
+
+  key_handler_.Bind(Key::kCtrlN, [this]() -> void { view_->MoveCursorDown(); });
+
+  key_handler_.Bind(Key::kCtrlH, [this]() -> void { view_->MoveCursorLeft(); });
+
+  key_handler_.Bind(Key::kCtrlF,
+                    [this]() -> void { view_->MoveCursorRight(); });
+
+  key_handler_.Bind(Key::kCtrlA, [this]() -> void {
+    view_->UpdateCursor(
+        Buffer::Position{.row = view_->GetBufferPosition().row, .col = 0});
+  });
+
+  key_handler_.Bind(Key::kCtrlE, [this]() -> void {
+    Buffer::Position pos = view_->GetBufferPosition();
+    view_->UpdateCursor(Buffer::Position{
+        .row = pos.row, .col = buffer_->GetLineLength(pos.row)});
+  });
+
   key_handler_.SetFallback([this](Key key) -> void {
     view_->UpdateCursor(
         buffer_->Insert(view_->GetBufferPosition(), static_cast<char>(key)));
