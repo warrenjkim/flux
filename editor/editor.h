@@ -5,13 +5,12 @@
 
 #include "buffer/buffer.h"
 #include "editor/key_handler.h"
+#include "editor/mode.h"
 #include "view/command_line.h"
 #include "view/status_line.h"
 #include "view/view.h"
 
 namespace flux {
-
-enum class Mode { kNormal, kInsert };
 
 class Editor {
  public:

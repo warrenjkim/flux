@@ -9,6 +9,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":key_handler",
+        ":mode",
         "//buffer",
         "//buffer:vector_buffer",
         "//view",
@@ -29,4 +30,12 @@ cc_library(
     deps = [
         "//terminal:keyboard",
     ],
+)
+
+cc_library(
+    name = "mode",
+    hdrs = [
+        "mode.h",
+    ],
+    visibility = ["//visibility:public"],
 )
