@@ -29,6 +29,10 @@ class View {
 
   void MoveCursorRight();
 
+  void MoveCursorStart();
+
+  void MoveCursorEnd();
+
  private:
   Buffer& buffer_;
   ViewPort viewport_;

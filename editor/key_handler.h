@@ -1,29 +1,26 @@
 #pragma once
 
-#include <functional>
 #include <unordered_map>
 
+#include "editor/commands.h"
 #include "terminal/keyboard.h"
 
 namespace flux {
 
 class KeyHandler {
  public:
-  using Handler = std::function<void()>;
-  using Fallback = std::function<void(Key)>;
-
   explicit KeyHandler() = default;
 
-  bool Bind(Key key, Handler handler, bool override = true);
+  bool Bind(Key key, Command::Function command, bool override = true);
 
-  void SetFallback(Fallback fallback);
+  void SetFallback(Command::Function command);
 
-  void Handle(Key key);
+  Command::Function GetCommand(Key key) const;
 
  private:
-  std::unordered_map<Key, Handler> map_;
+  std::unordered_map<Key, Command::Function> map_;
 
-  Fallback fallback_;
+  Command::Function fallback_;
 };
 
 }  // namespace flux

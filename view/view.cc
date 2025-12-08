@@ -78,4 +78,10 @@ void View::MoveCursorRight() {
   cursor_.col++;
 }
 
+void View::MoveCursorStart() { cursor_.col = 0; }
+
+void View::MoveCursorEnd() {
+  cursor_.col = std::min(viewport_.cols, buffer_.GetLineLength(cursor_.row));
+}
+
 }  // namespace flux

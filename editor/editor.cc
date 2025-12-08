@@ -6,6 +6,7 @@
 #include <string_view>
 
 #include "buffer/vector_buffer.h"
+#include "editor/commands.h"
 #include "terminal/raw_terminal.h"
 #include "view/command_line.h"
 #include "view/status_line.h"
@@ -57,7 +58,7 @@ void Editor::Run(std::string_view path) {
     raw_term.Flush();
 
     if (flux::Key key = raw_term.GetKey(); key != flux::Key::kNone) {
-      key_handler_[mode_].Handle(key);
+      key_handler_[mode_].GetCommand(key)(this, key);
     }
   }
 
@@ -71,104 +72,44 @@ void Editor::BindKeys() {
 }
 
 void Editor::BindNormalModeKeys() {
-  // movement
-  key_handler_[Mode::kNormal].Bind(Key::kArrowUp,
-                                   [this]() -> void { view_->MoveCursorUp(); });
+  key_handler_[Mode::kNormal].Bind(Key::kArrowUp, &Command::MoveCursorUp);
+  key_handler_[Mode::kNormal].Bind(Key::kArrowDown, &Command::MoveCursorDown);
+  key_handler_[Mode::kNormal].Bind(Key::kArrowLeft, &Command::MoveCursorLeft);
+  key_handler_[Mode::kNormal].Bind(Key::kArrowRight, &Command::MoveCursorRight);
 
-  key_handler_[Mode::kNormal].Bind(
-      Key::kArrowDown, [this]() -> void { view_->MoveCursorDown(); });
+  key_handler_[Mode::kNormal].Bind(Key::kk, &Command::MoveCursorUp);
+  key_handler_[Mode::kNormal].Bind(Key::kj, &Command::MoveCursorDown);
+  key_handler_[Mode::kNormal].Bind(Key::kh, &Command::MoveCursorLeft);
+  key_handler_[Mode::kNormal].Bind(Key::kl, &Command::MoveCursorRight);
+  key_handler_[Mode::kNormal].Bind(Key::kUnderscore, &Command::MoveCursorStart);
+  key_handler_[Mode::kNormal].Bind(Key::kDollar, &Command::MoveCursorEnd);
 
-  key_handler_[Mode::kNormal].Bind(
-      Key::kArrowLeft, [this]() -> void { view_->MoveCursorLeft(); });
+  key_handler_[Mode::kNormal].Bind(Key::ki, &Command::EnterInsertMode);
 
-  key_handler_[Mode::kNormal].Bind(
-      Key::kArrowRight, [this]() -> void { view_->MoveCursorRight(); });
-
-  // vim bindings
-  key_handler_[Mode::kNormal].Bind(Key::kk,
-                                   [this]() -> void { view_->MoveCursorUp(); });
-  key_handler_[Mode::kNormal].Bind(
-      Key::kj, [this]() -> void { view_->MoveCursorDown(); });
-
-  key_handler_[Mode::kNormal].Bind(
-      Key::kh, [this]() -> void { view_->MoveCursorLeft(); });
-
-  key_handler_[Mode::kNormal].Bind(
-      Key::kl, [this]() -> void { view_->MoveCursorRight(); });
-
-  // mode change
-  key_handler_[Mode::kNormal].Bind(Key::ki,
-                                   [this]() -> void { mode_ = Mode::kInsert; });
-
-  // fallback
-  key_handler_[Mode::kNormal].SetFallback([](Key) -> void {});
+  key_handler_[Mode::kNormal].SetFallback([](Editor*, Key) -> void {});
 }
 
 void Editor::BindInsertModeKeys() {
-  // quit
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlQ,
-                                   [this]() -> void { running_ = false; });
+  key_handler_[Mode::kInsert].Bind(Key::kArrowUp, &Command::MoveCursorUp);
+  key_handler_[Mode::kInsert].Bind(Key::kArrowDown, &Command::MoveCursorDown);
+  key_handler_[Mode::kInsert].Bind(Key::kArrowLeft, &Command::MoveCursorLeft);
+  key_handler_[Mode::kInsert].Bind(Key::kArrowRight, &Command::MoveCursorRight);
 
-  // save
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlS, [this]() -> void {
-    if (path_.empty()) {
-      command_line_->SetMessage("path is empty. not saving.");
-      return;
-    }
+  key_handler_[Mode::kInsert].Bind(Key::kCtrlP, &Command::MoveCursorUp);
+  key_handler_[Mode::kInsert].Bind(Key::kCtrlN, &Command::MoveCursorDown);
+  key_handler_[Mode::kInsert].Bind(Key::kCtrlH, &Command::MoveCursorLeft);
+  key_handler_[Mode::kInsert].Bind(Key::kCtrlF, &Command::MoveCursorRight);
+  key_handler_[Mode::kInsert].Bind(Key::kCtrlA, &Command::MoveCursorStart);
+  key_handler_[Mode::kInsert].Bind(Key::kCtrlE, &Command::MoveCursorEnd);
 
-    WriteFile(path_);
-    command_line_->SetMessage(
-        std::string("wrote to \"").append(path_).append("\""));
-  });
+  key_handler_[Mode::kInsert].Bind(Key::kCtrlQ, &Command::Quit);
+  key_handler_[Mode::kInsert].Bind(Key::kCtrlS, &Command::Save);
+  key_handler_[Mode::kInsert].Bind(Key::kBackspace, &Command::Backspace);
+  key_handler_[Mode::kInsert].Bind(Key::kReturn, &Command::Return);
 
-  // back
-  key_handler_[Mode::kInsert].Bind(Key::kBackspace, [this]() -> void {
-    view_->UpdateCursor(buffer_->Delete(view_->GetBufferPosition()));
-  });
+  key_handler_[Mode::kInsert].Bind(Key::kEscape, &Command::EnterNormalMode);
 
-  // enter
-  key_handler_[Mode::kInsert].Bind(Key::kReturn, [this]() -> void {
-    view_->UpdateCursor(buffer_->BreakLine(view_->GetBufferPosition()));
-  });
-
-  // movement
-  key_handler_[Mode::kInsert].Bind(Key::kArrowUp,
-                                   [this]() -> void { view_->MoveCursorUp(); });
-  key_handler_[Mode::kInsert].Bind(
-      Key::kArrowDown, [this]() -> void { view_->MoveCursorDown(); });
-  key_handler_[Mode::kInsert].Bind(
-      Key::kArrowLeft, [this]() -> void { view_->MoveCursorLeft(); });
-  key_handler_[Mode::kInsert].Bind(
-      Key::kArrowRight, [this]() -> void { view_->MoveCursorRight(); });
-
-  // emacs bindings
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlP,
-                                   [this]() -> void { view_->MoveCursorUp(); });
-  key_handler_[Mode::kInsert].Bind(
-      Key::kCtrlN, [this]() -> void { view_->MoveCursorDown(); });
-  key_handler_[Mode::kInsert].Bind(
-      Key::kCtrlH, [this]() -> void { view_->MoveCursorLeft(); });
-  key_handler_[Mode::kInsert].Bind(
-      Key::kCtrlF, [this]() -> void { view_->MoveCursorRight(); });
-
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlA, [this]() -> void {
-    view_->UpdateCursor(
-        Buffer::Position{.row = view_->GetBufferPosition().row, .col = 0});
-  });
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlE, [this]() -> void {
-    Buffer::Position pos = view_->GetBufferPosition();
-    view_->UpdateCursor(Buffer::Position{
-        .row = pos.row, .col = buffer_->GetLineLength(pos.row)});
-  });
-
-  key_handler_[Mode::kInsert].Bind(Key::kEscape,
-                                   [this]() -> void { mode_ = Mode::kNormal; });
-
-  // fallback
-  key_handler_[Mode::kInsert].SetFallback([this](Key key) -> void {
-    view_->UpdateCursor(
-        buffer_->Insert(view_->GetBufferPosition(), static_cast<char>(key)));
-  });
+  key_handler_[Mode::kInsert].SetFallback(&Command::InsertChar);
 }
 
 std::unique_ptr<Buffer> Editor::OpenFile(std::string_view path) const {

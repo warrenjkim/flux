@@ -39,6 +39,8 @@ class Editor {
   std::unordered_map<Mode, KeyHandler> key_handler_;
   Mode mode_;
   bool running_;
+
+  friend struct Command;
 };
 
 }  // namespace flux
