@@ -29,8 +29,6 @@ class Editor {
 
   size_t WriteFile(std::string_view path) const;
 
-  std::unique_ptr<View> MakeView(Buffer* buffer, ViewPort vp) const;
-
   std::string path_;
   std::unique_ptr<Buffer> buffer_;
   std::unique_ptr<StatusLine> status_line_;

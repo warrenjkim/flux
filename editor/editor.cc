@@ -33,7 +33,7 @@ void Editor::Run(std::string_view path) {
 
   ViewPort vp = raw_term.GetTerminalSize();
   vp.rows -= 2;
-  view_ = MakeView(buffer_.get(), vp);
+  view_ = std::make_unique<View>(buffer_.get(), vp);
   status_line_ = std::make_unique<StatusLine>(vp.cols);
   command_line_ = std::make_unique<CommandLine>(vp.cols);
 
@@ -142,10 +142,6 @@ size_t Editor::WriteFile(std::string_view path) const {
   file.close();
 
   return size;
-}
-
-std::unique_ptr<View> Editor::MakeView(Buffer* buffer, ViewPort vp) const {
-  return std::make_unique<View>(buffer, vp);
 }
 
 }  // namespace flux
