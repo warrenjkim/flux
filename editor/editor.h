@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "buffer/buffer.h"
-#include "editor/key_handler.h"
+#include "editor/key_bindings.h"
 #include "editor/mode.h"
 #include "view/command_line.h"
 #include "view/status_line.h"
@@ -34,7 +34,7 @@ class Editor {
   std::unique_ptr<StatusLine> status_line_;
   std::unique_ptr<CommandLine> command_line_;
   std::unique_ptr<View> view_;
-  std::unordered_map<Mode, KeyHandler> key_handler_;
+  std::unordered_map<Mode, KeyBindings> key_bindings_;
   Mode mode_;
   bool running_;
 

@@ -7,9 +7,9 @@
 
 namespace flux {
 
-class KeyHandler {
+class KeyBindings {
  public:
-  explicit KeyHandler() = default;
+  explicit KeyBindings() = default;
 
   bool Bind(Key key, Command::Function command, bool override = true);
 

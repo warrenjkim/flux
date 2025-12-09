@@ -58,7 +58,7 @@ void Editor::Run(std::string_view path) {
     raw_term.Flush();
 
     if (flux::Key key = raw_term.GetKey(); key != flux::Key::kNone) {
-      key_handler_[mode_].GetCommand(key)(this, key);
+      key_bindings_[mode_].GetCommand(key)(this, key);
     }
   }
 
@@ -72,44 +72,47 @@ void Editor::BindKeys() {
 }
 
 void Editor::BindNormalModeKeys() {
-  key_handler_[Mode::kNormal].Bind(Key::kArrowUp, &Command::MoveCursorUp);
-  key_handler_[Mode::kNormal].Bind(Key::kArrowDown, &Command::MoveCursorDown);
-  key_handler_[Mode::kNormal].Bind(Key::kArrowLeft, &Command::MoveCursorLeft);
-  key_handler_[Mode::kNormal].Bind(Key::kArrowRight, &Command::MoveCursorRight);
+  key_bindings_[Mode::kNormal].Bind(Key::kArrowUp, &Command::MoveCursorUp);
+  key_bindings_[Mode::kNormal].Bind(Key::kArrowDown, &Command::MoveCursorDown);
+  key_bindings_[Mode::kNormal].Bind(Key::kArrowLeft, &Command::MoveCursorLeft);
+  key_bindings_[Mode::kNormal].Bind(Key::kArrowRight,
+                                    &Command::MoveCursorRight);
 
-  key_handler_[Mode::kNormal].Bind(Key::kk, &Command::MoveCursorUp);
-  key_handler_[Mode::kNormal].Bind(Key::kj, &Command::MoveCursorDown);
-  key_handler_[Mode::kNormal].Bind(Key::kh, &Command::MoveCursorLeft);
-  key_handler_[Mode::kNormal].Bind(Key::kl, &Command::MoveCursorRight);
-  key_handler_[Mode::kNormal].Bind(Key::kUnderscore, &Command::MoveCursorStart);
-  key_handler_[Mode::kNormal].Bind(Key::kDollar, &Command::MoveCursorEnd);
+  key_bindings_[Mode::kNormal].Bind(Key::kk, &Command::MoveCursorUp);
+  key_bindings_[Mode::kNormal].Bind(Key::kj, &Command::MoveCursorDown);
+  key_bindings_[Mode::kNormal].Bind(Key::kh, &Command::MoveCursorLeft);
+  key_bindings_[Mode::kNormal].Bind(Key::kl, &Command::MoveCursorRight);
+  key_bindings_[Mode::kNormal].Bind(Key::kUnderscore,
+                                    &Command::MoveCursorStart);
+  key_bindings_[Mode::kNormal].Bind(Key::kDollar, &Command::MoveCursorEnd);
 
-  key_handler_[Mode::kNormal].Bind(Key::ki, &Command::EnterInsertMode);
+  key_bindings_[Mode::kNormal].Bind(Key::ki, &Command::EnterInsertMode);
 
-  key_handler_[Mode::kNormal].SetFallback([](Editor*, Key) -> void {});
+  key_bindings_[Mode::kNormal].SetFallback([](Editor*, Key) -> void {});
 }
 
 void Editor::BindInsertModeKeys() {
-  key_handler_[Mode::kInsert].Bind(Key::kArrowUp, &Command::MoveCursorUp);
-  key_handler_[Mode::kInsert].Bind(Key::kArrowDown, &Command::MoveCursorDown);
-  key_handler_[Mode::kInsert].Bind(Key::kArrowLeft, &Command::MoveCursorLeft);
-  key_handler_[Mode::kInsert].Bind(Key::kArrowRight, &Command::MoveCursorRight);
+  key_bindings_[Mode::kInsert].Bind(Key::kArrowUp, &Command::MoveCursorUp);
+  key_bindings_[Mode::kInsert].Bind(Key::kArrowDown, &Command::MoveCursorDown);
+  key_bindings_[Mode::kInsert].Bind(Key::kArrowLeft, &Command::MoveCursorLeft);
+  key_bindings_[Mode::kInsert].Bind(Key::kArrowRight,
+                                    &Command::MoveCursorRight);
 
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlP, &Command::MoveCursorUp);
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlN, &Command::MoveCursorDown);
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlH, &Command::MoveCursorLeft);
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlF, &Command::MoveCursorRight);
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlA, &Command::MoveCursorStart);
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlE, &Command::MoveCursorEnd);
+  key_bindings_[Mode::kInsert].Bind(Key::kCtrlP, &Command::MoveCursorUp);
+  key_bindings_[Mode::kInsert].Bind(Key::kCtrlN, &Command::MoveCursorDown);
+  key_bindings_[Mode::kInsert].Bind(Key::kCtrlH, &Command::MoveCursorLeft);
+  key_bindings_[Mode::kInsert].Bind(Key::kCtrlF, &Command::MoveCursorRight);
+  key_bindings_[Mode::kInsert].Bind(Key::kCtrlA, &Command::MoveCursorStart);
+  key_bindings_[Mode::kInsert].Bind(Key::kCtrlE, &Command::MoveCursorEnd);
 
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlQ, &Command::Quit);
-  key_handler_[Mode::kInsert].Bind(Key::kCtrlS, &Command::Save);
-  key_handler_[Mode::kInsert].Bind(Key::kBackspace, &Command::Backspace);
-  key_handler_[Mode::kInsert].Bind(Key::kReturn, &Command::Return);
+  key_bindings_[Mode::kInsert].Bind(Key::kCtrlQ, &Command::Quit);
+  key_bindings_[Mode::kInsert].Bind(Key::kCtrlS, &Command::Save);
+  key_bindings_[Mode::kInsert].Bind(Key::kBackspace, &Command::Backspace);
+  key_bindings_[Mode::kInsert].Bind(Key::kReturn, &Command::Return);
 
-  key_handler_[Mode::kInsert].Bind(Key::kEscape, &Command::EnterNormalMode);
+  key_bindings_[Mode::kInsert].Bind(Key::kEscape, &Command::EnterNormalMode);
 
-  key_handler_[Mode::kInsert].SetFallback(&Command::InsertChar);
+  key_bindings_[Mode::kInsert].SetFallback(&Command::InsertChar);
 }
 
 std::unique_ptr<Buffer> Editor::OpenFile(std::string_view path) const {
