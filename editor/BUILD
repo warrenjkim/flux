@@ -3,11 +3,11 @@ cc_library(
     srcs = [
         "commands.cc",
         "editor.cc",
-        "key_handler.cc",
+        "key_bindings.cc",
     ],
     hdrs = [
         "editor.h",
-        "key_handler.h",
+        "key_bindings.h",
     ],
     visibility = ["//visibility:public"],
     deps = [
@@ -19,6 +19,7 @@ cc_library(
         "//view",
         "//view:command_line",
         "//view:status_line",
+        "@pulse//dsa:trie",
     ],
 )
 

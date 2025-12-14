@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "buffer/buffer.h"
-#include "editor/key_handler.h"
+#include "editor/key_bindings.h"
 #include "editor/mode.h"
 #include "view/command_line.h"
 #include "view/status_line.h"
@@ -14,7 +14,11 @@ namespace flux {
 
 class Editor {
  public:
-  explicit Editor();
+  struct Config {
+    std::unordered_map<Mode, KeyBindings> key_bindings;
+  };
+
+  explicit Editor(Config config = {});
 
   void Run(std::string_view path = "");
 
@@ -29,14 +33,12 @@ class Editor {
 
   size_t WriteFile(std::string_view path) const;
 
-  std::unique_ptr<View> MakeView(Buffer* buffer, ViewPort vp) const;
-
   std::string path_;
   std::unique_ptr<Buffer> buffer_;
   std::unique_ptr<StatusLine> status_line_;
   std::unique_ptr<CommandLine> command_line_;
   std::unique_ptr<View> view_;
-  std::unordered_map<Mode, KeyHandler> key_handler_;
+  std::unordered_map<Mode, KeyBindings> key_bindings_;
   Mode mode_;
   bool running_;
 
