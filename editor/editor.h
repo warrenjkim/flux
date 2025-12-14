@@ -18,7 +18,7 @@ class Editor {
     std::unordered_map<Mode, KeyBindings> key_bindings;
   };
 
-  explicit Editor();
+  explicit Editor(Config config = {});
 
   void Run(std::string_view path = "");
 

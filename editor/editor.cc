@@ -16,7 +16,13 @@ namespace flux {
 
 constexpr std::string_view kUnnamedFile = "[unnamed file]";
 
-Editor::Editor() : mode_(Mode::kNormal), running_(true) { BindKeys(); }
+Editor::Editor(Config config) : mode_(Mode::kNormal), running_(true) {
+  if (!config.key_bindings.empty()) {
+    key_bindings_ = std::move(config.key_bindings);
+  } else {
+    BindKeys();
+  }
+}
 
 void Editor::Run(std::string_view path) {
   flux::RawTerminal raw_term;
