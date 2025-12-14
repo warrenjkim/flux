@@ -9,7 +9,7 @@ bool KeyBindings::BindKey(Key key, Command::Function command, bool override) {
   return BindChord(Chord({key}), command, override);
 }
 
-bool KeyBindings::BindChord(Chord chord, Command::Function command,
+bool KeyBindings::BindChord(const Chord& chord, Command::Function command,
                             bool override) {
   if (map_.match(chord) && !override) {
     return false;
@@ -27,7 +27,7 @@ Command::Function KeyBindings::GetCommand(Key key) const {
   return GetCommand(Chord({key}));
 }
 
-Command::Function KeyBindings::GetCommand(Chord chord) const {
+Command::Function KeyBindings::GetCommand(const Chord& chord) const {
   if (const Command::Function* cmd = map_.get(chord); cmd) {
     return *cmd;
   } else {

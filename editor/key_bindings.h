@@ -16,13 +16,14 @@ class KeyBindings {
 
   bool BindKey(Key key, Command::Function command, bool override = true);
 
-  bool BindChord(Chord chord, Command::Function command, bool override = true);
+  bool BindChord(const Chord& chord, Command::Function command,
+                 bool override = true);
 
   void SetFallback(Command::Function command);
 
   Command::Function GetCommand(Key key) const;
 
-  Command::Function GetCommand(Chord key) const;
+  Command::Function GetCommand(const Chord& key) const;
 
  private:
   pulse::Trie<Chord, Command::Function> map_;
