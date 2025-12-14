@@ -1,16 +1,22 @@
 #include "editor/key_bindings.h"
 
 #include "editor/commands.h"
+#include "pulse/dsa/trie.h"
 
 namespace flux {
 
-bool KeyBindings::Bind(Key key, Command::Function command, bool override) {
-  if (override) {
-    map_[key] = command;
-    return true;
+bool KeyBindings::BindKey(Key key, Command::Function command, bool override) {
+  return BindChord(Chord({key}), command, override);
+}
+
+bool KeyBindings::BindChord(Chord chord, Command::Function command,
+                            bool override) {
+  if (map_.match(chord) && !override) {
+    return false;
   }
 
-  return map_.insert({key, command}).second;
+  map_[chord] = std::move(command);
+  return true;
 }
 
 void KeyBindings::SetFallback(Command::Function fallback) {
@@ -18,8 +24,12 @@ void KeyBindings::SetFallback(Command::Function fallback) {
 }
 
 Command::Function KeyBindings::GetCommand(Key key) const {
-  if (auto it = map_.find(key); it != map_.end()) {
-    return it->second;
+  return GetCommand(Chord({key}));
+}
+
+Command::Function KeyBindings::GetCommand(Chord chord) const {
+  if (const Command::Function* cmd = map_.get(chord); cmd) {
+    return *cmd;
   } else {
     return fallback_;
   }

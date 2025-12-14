@@ -19,6 +19,7 @@ cc_library(
         "//view",
         "//view:command_line",
         "//view:status_line",
+        "@pulse//dsa:trie",
     ],
 )
 

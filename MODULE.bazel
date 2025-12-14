@@ -4,6 +4,13 @@ module(
     compatibility_level = 1,
 )
 
+bazel_dep(name = "pulse", version = "1.0.0")
+git_override(
+    module_name = "pulse",
+    commit = "634053be0b76dddaed8e5491f9380a08c3cf9d38",
+    remote = "https://github.com/warrenjkim/pulse.git",
+)
+
 bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
 git_override(
     module_name = "hedron_compile_commands",
@@ -12,3 +19,4 @@ git_override(
 )
 
 bazel_dep(name = "rules_cc", version = "0.0.15")
+bazel_dep(name = "googletest", version = "1.17.0")

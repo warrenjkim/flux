@@ -14,6 +14,10 @@ namespace flux {
 
 class Editor {
  public:
+  struct Config {
+    std::unordered_map<Mode, KeyBindings> key_bindings;
+  };
+
   explicit Editor();
 
   void Run(std::string_view path = "");

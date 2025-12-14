@@ -1,24 +1,31 @@
 #pragma once
 
-#include <unordered_map>
+#include <vector>
 
 #include "editor/commands.h"
+#include "pulse/dsa/trie.h"
 #include "terminal/keyboard.h"
 
 namespace flux {
 
 class KeyBindings {
  public:
+  using Chord = std::vector<Key>;
+
   explicit KeyBindings() = default;
 
-  bool Bind(Key key, Command::Function command, bool override = true);
+  bool BindKey(Key key, Command::Function command, bool override = true);
+
+  bool BindChord(Chord chord, Command::Function command, bool override = true);
 
   void SetFallback(Command::Function command);
 
   Command::Function GetCommand(Key key) const;
 
+  Command::Function GetCommand(Chord key) const;
+
  private:
-  std::unordered_map<Key, Command::Function> map_;
+  pulse::Trie<Chord, Command::Function> map_;
 
   Command::Function fallback_;
 };
