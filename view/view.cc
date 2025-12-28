@@ -68,7 +68,7 @@ void View::MoveCursorUp() {
   }
 
   size_t len = buffer_.GetLineLength(GetBufferPosition().row);
-  if (offset_.col > len) {
+  if (len < offset_.col) {
     offset_.col = len;
   }
 
@@ -87,7 +87,7 @@ void View::MoveCursorDown() {
   }
 
   size_t len = buffer_.GetLineLength(GetBufferPosition().row);
-  if (offset_.col > len) {
+  if (len < offset_.col) {
     offset_.col = len;
   }
 
@@ -95,7 +95,9 @@ void View::MoveCursorDown() {
 }
 
 void View::MoveCursorLeft() {
-  if (GetBufferPosition().col == 0) return;
+  if (GetBufferPosition().col == 0) {
+    return;
+  }
 
   if (cursor_.col > 0) {
     cursor_.col--;
@@ -117,10 +119,20 @@ void View::MoveCursorRight() {
   }
 }
 
-void View::MoveCursorStart() { cursor_.col = 0; }
+void View::MoveCursorStart() {
+  offset_.col = 0;
+  cursor_.col = 0;
+}
 
 void View::MoveCursorEnd() {
-  cursor_.col = std::min(viewport_.cols, buffer_.GetLineLength(cursor_.row));
+  if (size_t len = buffer_.GetLineLength(GetBufferPosition().row);
+      len <= viewport_.cols) {
+    offset_.col = 0;
+    cursor_.col = len;
+  } else {
+    offset_.col = len - viewport_.cols;
+    cursor_.col = viewport_.cols;
+  }
 }
 
 }  // namespace flux
