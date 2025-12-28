@@ -39,6 +39,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
+        "//buffer",
         "//terminal:raw_terminal",
     ],
 )

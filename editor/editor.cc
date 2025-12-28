@@ -54,7 +54,9 @@ void Editor::Run(std::string_view path) {
         &raw_term,
         StatusLine::Options{.file_name = path.empty() ? kUnnamedFile : path,
                             .delimiter = '=',
-                            .left_padding = 2});
+                            .left_padding = 2,
+                            .right_padding = 2,
+                            .buffer_position = view_->GetBufferPosition()});
     raw_term.WriteLine();
 
     command_line_->Draw(&raw_term);
