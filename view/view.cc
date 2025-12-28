@@ -9,22 +9,18 @@
 
 namespace flux {
 
-View::View(Buffer* buffer_, ViewPort vp)
-    : buffer_(*buffer_),
-      viewport_(vp),
-      cursor_(Cursor{.row = 0, .col = 0}),
-      buffer_offset_(Offset{.row = 0}) {}
+View::View(Buffer* buffer_, ViewPort vp) : buffer_(*buffer_), viewport_(vp) {}
 
 void View::Draw(RawTerminal* terminal) {
   for (size_t i = 0; i < viewport_.rows; i++) {
-    if (i >= buffer_.Lines()) {
+    if (i + buffer_offset_.row >= buffer_.Lines()) {
       terminal->Write("~");
-    } else {
-      std::string line = buffer_.GetLine(i + buffer_offset_.row);
-      for (size_t j = 0; j < std::min(viewport_.cols, line.size()); j++) {
-        if (j + buffer_offset_.col < line.size()) {
-          terminal->Write(line[j + buffer_offset_.col]);
-        }
+    } else if (std::string line = buffer_.GetLine(i + buffer_offset_.row);
+               buffer_offset_.col < line.size()) {
+      for (size_t j = 0;
+           j < std::min(viewport_.cols, line.size() - buffer_offset_.col);
+           j++) {
+        terminal->Write(line[buffer_offset_.col + j]);
       }
     }
 
