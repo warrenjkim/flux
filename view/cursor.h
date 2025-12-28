@@ -7,8 +7,8 @@
 namespace flux {
 
 struct Cursor {
-  size_t row;
-  size_t col;
+  size_t row = 0;
+  size_t col = 0;
 };
 
 inline std::string to_string(Cursor cursor) {

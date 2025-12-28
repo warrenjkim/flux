@@ -10,6 +10,9 @@ void CommandLine::SetMessage(std::string_view message) {
   message_ = std::string(message);
 }
 
-void CommandLine::Draw(RawTerminal* terminal) { terminal->Write(message_); }
+void CommandLine::Draw(RawTerminal* terminal) {
+  terminal->ClearLine();
+  terminal->Write(message_);
+}
 
 }  // namespace flux

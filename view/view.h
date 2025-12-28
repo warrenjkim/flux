@@ -34,9 +34,15 @@ class View {
   void MoveCursorEnd();
 
  private:
+  struct BufferOffset {
+    size_t row = 0;
+    size_t col = 0;
+  };
+
   Buffer& buffer_;
   ViewPort viewport_;
   Cursor cursor_;
+  BufferOffset offset_;
 };
 
 }  // namespace flux
