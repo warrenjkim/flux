@@ -1,5 +1,6 @@
 #pragma once
 
+#include "buffer/buffer.h"
 #include "terminal/raw_terminal.h"
 
 namespace flux {
@@ -10,6 +11,8 @@ class StatusLine {
     std::string_view file_name;
     char delimiter;
     size_t left_padding;
+    size_t right_padding;
+    Buffer::Position buffer_position;
   };
 
   explicit StatusLine(size_t cols);

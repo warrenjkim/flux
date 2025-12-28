@@ -29,4 +29,13 @@ class Buffer {
   virtual Position Delete(Position pos) = 0;
 };
 
+inline std::string to_string(Buffer::Position position) {
+  return "(" + std::to_string(position.row) + ", " +
+         std::to_string(position.col) + ")";
+}
+
+inline std::ostream& operator<<(std::ostream& os, Buffer::Position position) {
+  return os << to_string(position);
+}
+
 }  // namespace flux
