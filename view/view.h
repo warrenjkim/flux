@@ -17,8 +17,6 @@ class View {
 
   Cursor GetCursor() const;
 
-  Cursor GetOffset() const;
-
   Buffer::Position GetBufferPosition() const;
 
   void UpdateCursor(Buffer::Position pos);
@@ -36,7 +34,7 @@ class View {
   void MoveCursorEnd();
 
  private:
-  struct Offset {
+  struct BufferOffset {
     size_t row = 0;
     size_t col = 0;
   };
@@ -44,7 +42,7 @@ class View {
   Buffer& buffer_;
   ViewPort viewport_;
   Cursor cursor_;
-  Offset buffer_offset_;
+  BufferOffset offset_;
 };
 
 }  // namespace flux
