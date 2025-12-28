@@ -22,7 +22,9 @@ void View::Draw(RawTerminal* terminal) {
     } else {
       std::string line = buffer_.GetLine(i + buffer_offset_.row);
       for (size_t j = 0; j < std::min(viewport_.cols, line.size()); j++) {
-        terminal->Write(line[j]);
+        if (j + buffer_offset_.col < line.size()) {
+          terminal->Write(line[j + buffer_offset_.col]);
+        }
       }
     }
 
@@ -39,55 +41,91 @@ Cursor View::GetCursor() const { return cursor_; }
 
 Buffer::Position View::GetBufferPosition() const {
   return Buffer::Position{.row = cursor_.row + buffer_offset_.row,
-                          .col = cursor_.col};
+                          .col = cursor_.col + buffer_offset_.col};
 }
 
 void View::UpdateCursor(Buffer::Position pos) {
-  cursor_.row = std::min(viewport_.rows, pos.row);
-  cursor_.col = std::min(viewport_.cols, pos.col);
+  if (pos.row < buffer_offset_.row) {
+    buffer_offset_.row = pos.row;
+  } else if (pos.row >= buffer_offset_.row + viewport_.rows) {
+    buffer_offset_.row = pos.row - viewport_.rows + 1;
+  }
+
+  if (pos.col < buffer_offset_.col) {
+    buffer_offset_.col = pos.col;
+  } else if (pos.col >= buffer_offset_.col + viewport_.cols) {
+    buffer_offset_.col = pos.col - viewport_.cols + 1;
+  }
+
+  cursor_.row = pos.row - buffer_offset_.row;
+  cursor_.col = pos.col - buffer_offset_.col;
 }
 
 void View::MoveCursorUp() {
-  if (cursor_.row > 0) {
-    cursor_.col = std::min(cursor_.col, buffer_.GetLineLength(--cursor_.row));
+  if (GetBufferPosition().row == 0) {
     return;
   }
 
-  if (buffer_offset_.row > 0) {
-    cursor_.col =
-        std::min(cursor_.col, buffer_.GetLineLength(--buffer_offset_.row));
+  if (cursor_.row > 0) {
+    cursor_.row--;
+  } else {
+    buffer_offset_.row--;
   }
+
+  cursor_.col =
+      std::min(cursor_.col, buffer_.GetLineLength(GetBufferPosition().row));
+
+  size_t len = buffer_.GetLineLength(GetBufferPosition().row);
+  if (buffer_offset_.col > len) {
+    buffer_offset_.col = len;
+  }
+
+  cursor_.col = std::min(cursor_.col, len - buffer_offset_.col);
 }
 
 void View::MoveCursorDown() {
-  if (cursor_.row < std::min(viewport_.rows, buffer_.Lines()) - 1) {
-    cursor_.col = std::min(cursor_.col, buffer_.GetLineLength(++cursor_.row));
+  if (GetBufferPosition().row + 1 >= buffer_.Lines()) {
     return;
   }
 
-  if (buffer_offset_.row <
-      static_cast<size_t>(std::max(0, static_cast<int>(buffer_.Lines()) -
-                                          static_cast<int>(viewport_.rows)))) {
-    cursor_.col =
-        std::min(cursor_.col,
-                 buffer_.GetLineLength(cursor_.row + (++buffer_offset_.row)));
+  if (cursor_.row + 1 < viewport_.rows) {
+    cursor_.row++;
+  } else {
+    buffer_offset_.row++;
   }
+
+  cursor_.col =
+      std::min(cursor_.col, buffer_.GetLineLength(GetBufferPosition().row));
+
+  size_t len = buffer_.GetLineLength(GetBufferPosition().row);
+  if (buffer_offset_.col > len) {
+    buffer_offset_.col = len;
+  }
+
+  cursor_.col = std::min(cursor_.col, len - buffer_offset_.col);
 }
 
 void View::MoveCursorLeft() {
-  if (cursor_.col == 0) {
-    return;
-  }
+  if (GetBufferPosition().col == 0) return;
 
-  cursor_.col--;
+  if (cursor_.col > 0) {
+    cursor_.col--;
+  } else {
+    buffer_offset_.col--;
+  }
 }
 
 void View::MoveCursorRight() {
-  if (cursor_.col >= buffer_.GetLineLength(cursor_.row)) {
+  if (Buffer::Position pos = GetBufferPosition();
+      pos.col >= buffer_.GetLineLength(pos.row)) {
     return;
   }
 
-  cursor_.col++;
+  if (cursor_.col + 1 < viewport_.cols) {
+    cursor_.col++;
+  } else {
+    buffer_offset_.col++;
+  }
 }
 
 void View::MoveCursorStart() { cursor_.col = 0; }

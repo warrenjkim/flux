@@ -17,6 +17,8 @@ class View {
 
   Cursor GetCursor() const;
 
+  Cursor GetOffset() const;
+
   Buffer::Position GetBufferPosition() const;
 
   void UpdateCursor(Buffer::Position pos);
@@ -36,6 +38,7 @@ class View {
  private:
   struct Offset {
     size_t row = 0;
+    size_t col = 0;
   };
 
   Buffer& buffer_;
