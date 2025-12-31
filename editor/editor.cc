@@ -134,7 +134,7 @@ void Editor::BindInsertModeKeys() {
                                               &Command::MoveCursorUp);
   config_.key_bindings[Mode::kInsert].BindKey(Key::kCtrlN,
                                               &Command::MoveCursorDown);
-  config_.key_bindings[Mode::kInsert].BindKey(Key::kCtrlH,
+  config_.key_bindings[Mode::kInsert].BindKey(Key::kCtrlB,
                                               &Command::MoveCursorLeft);
   config_.key_bindings[Mode::kInsert].BindKey(Key::kCtrlF,
                                               &Command::MoveCursorRight);
