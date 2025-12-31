@@ -100,6 +100,22 @@ void Editor::BindNormalModeKeys() {
 
   config_.key_bindings[Mode::kNormal].BindKey(Key::ki,
                                               &Command::EnterInsertMode);
+  config_.key_bindings[Mode::kNormal].BindKey(Key::ka,
+                                              [](Editor* e, Key) -> void {
+                                                Command::EnterInsertMode(e);
+                                                Command::MoveCursorRight(e);
+                                              });
+
+  config_.key_bindings[Mode::kNormal].BindKey(Key::kI,
+                                              [](Editor* e, Key) -> void {
+                                                Command::EnterInsertMode(e);
+                                                Command::MoveCursorStart(e);
+                                              });
+  config_.key_bindings[Mode::kNormal].BindKey(Key::kA,
+                                              [](Editor* e, Key) -> void {
+                                                Command::EnterInsertMode(e);
+                                                Command::MoveCursorEnd(e);
+                                              });
 
   config_.key_bindings[Mode::kNormal].SetFallback([](Editor*, Key) -> void {});
 }
