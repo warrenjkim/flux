@@ -9,6 +9,21 @@
 
 namespace flux {
 
+namespace {
+
+void NormalizeCursorColumn(size_t desired, size_t viewport_cols,
+                           size_t* offset_col, size_t* cursor_col) {
+  if (desired < *offset_col) {
+    *offset_col = desired;
+  } else if (desired >= *offset_col + viewport_cols) {
+    *offset_col = desired - viewport_cols + 1;
+  }
+
+  *cursor_col = desired - *offset_col;
+}
+
+}  // namespace
+
 View::View(Buffer* buffer_, ViewPort vp) : buffer_(*buffer_), viewport_(vp) {}
 
 void View::Draw(RawTerminal* terminal) {
@@ -67,12 +82,10 @@ void View::MoveCursorUp() {
     offset_.row--;
   }
 
-  size_t len = buffer_.GetLineLength(GetBufferPosition().row);
-  if (len < offset_.col) {
-    offset_.col = len;
-  }
-
-  cursor_.col = std::min(cursor_.col, len - offset_.col);
+  NormalizeCursorColumn(
+      std::min(cursor_.preferred_col,
+               buffer_.GetLineLength(GetBufferPosition().row)),
+      viewport_.cols, &offset_.col, &cursor_.col);
 }
 
 void View::MoveCursorDown() {
@@ -86,12 +99,10 @@ void View::MoveCursorDown() {
     offset_.row++;
   }
 
-  size_t len = buffer_.GetLineLength(GetBufferPosition().row);
-  if (len < offset_.col) {
-    offset_.col = len;
-  }
-
-  cursor_.col = std::min(cursor_.col, len - offset_.col);
+  NormalizeCursorColumn(
+      std::min(cursor_.preferred_col,
+               buffer_.GetLineLength(GetBufferPosition().row)),
+      viewport_.cols, &offset_.col, &cursor_.col);
 }
 
 void View::MoveCursorLeft() {
@@ -104,6 +115,8 @@ void View::MoveCursorLeft() {
   } else {
     offset_.col--;
   }
+
+  cursor_.preferred_col = GetBufferPosition().col;
 }
 
 void View::MoveCursorRight() {
@@ -117,11 +130,14 @@ void View::MoveCursorRight() {
   } else {
     offset_.col++;
   }
+
+  cursor_.preferred_col = GetBufferPosition().col;
 }
 
 void View::MoveCursorStart() {
   offset_.col = 0;
   cursor_.col = 0;
+  cursor_.preferred_col = 0;
 }
 
 void View::MoveCursorEnd() {
@@ -129,9 +145,11 @@ void View::MoveCursorEnd() {
       len <= viewport_.cols) {
     offset_.col = 0;
     cursor_.col = len;
+    cursor_.preferred_col = len;
   } else {
     offset_.col = len - viewport_.cols;
     cursor_.col = viewport_.cols;
+    cursor_.preferred_col = len;
   }
 }
 
