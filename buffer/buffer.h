@@ -8,8 +8,8 @@ namespace flux {
 class Buffer {
  public:
   struct Position {
-    size_t row;
-    size_t col;
+    size_t row = 0;
+    size_t col = 0;
   };
 
   virtual ~Buffer() = default;
