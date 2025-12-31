@@ -17,13 +17,13 @@ Key RawTerminal::GetKey() {
     case Key::kEscape:
       return ResolveEscapeSequence();
     // case Key::kCtrlA:
-    case Key::kCtrlB:
+    // case Key::kCtrlB:
     case Key::kCtrlC:
     case Key::kCtrlD:
     // case Key::kCtrlE:
     // case Key::kCtrlF:
     case Key::kCtrlG:
-    // case Key::kCtrlH:
+    case Key::kCtrlH:
     case Key::kCtrlJ:
     case Key::kCtrlK:
     case Key::kCtrlL:
