@@ -31,7 +31,10 @@ void Command::Return(Editor* e, Key) {
   e->view_->UpdateCursor(e->buffer_->BreakLine(e->view_->GetBufferPosition()));
 }
 
-void Command::EnterNormalMode(Editor* e, Key) { e->mode_ = Mode::kNormal; }
+void Command::EnterNormalMode(Editor* e, Key) {
+  e->mode_ = Mode::kNormal;
+  MoveCursorLeft(e);
+}
 
 void Command::EnterInsertMode(Editor* e, Key) { e->mode_ = Mode::kInsert; }
 
@@ -41,7 +44,13 @@ void Command::MoveCursorDown(Editor* e, Key) { e->view_->MoveCursorDown(); }
 
 void Command::MoveCursorLeft(Editor* e, Key) { e->view_->MoveCursorLeft(); }
 
-void Command::MoveCursorRight(Editor* e, Key) { e->view_->MoveCursorRight(); }
+void Command::MoveCursorRight(Editor* e, Key) {
+  Buffer::Position pos = e->view_->GetBufferPosition();
+  size_t len = e->buffer_->GetLineLength(pos.row);
+  if (pos.col < len - (e->mode_ == Mode::kNormal && len > 0)) {
+    e->view_->MoveCursorRight();
+  }
+}
 
 void Command::MoveCursorStart(Editor* e, Key) { e->view_->MoveCursorStart(); }
 
