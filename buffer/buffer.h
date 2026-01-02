@@ -27,6 +27,8 @@ class Buffer {
   virtual Position BreakLine(Position pos) = 0;
 
   virtual Position Delete(Position pos) = 0;
+
+  virtual Position DeleteLine(Position pos) = 0;
 };
 
 inline std::string to_string(Buffer::Position position) {
