@@ -23,16 +23,14 @@ void KeyBindings::SetFallback(Command::Function fallback) {
   fallback_ = fallback;
 }
 
-Command::Function KeyBindings::GetCommand(Key key) const {
-  return GetCommand(Chord({key}));
+bool KeyBindings::PrefixCommand(const Chord& chord) const {
+  return map_.prefix(chord);
 }
 
-Command::Function KeyBindings::GetCommand(const Chord& chord) const {
-  if (const Command::Function* cmd = map_.get(chord); cmd) {
-    return *cmd;
-  } else {
-    return fallback_;
-  }
+const Command::Function& KeyBindings::GetFallback() const { return fallback_; }
+
+const Command::Function* KeyBindings::MatchCommand(const Chord& chord) const {
+  return map_.get(chord);
 }
 
 }  // namespace flux

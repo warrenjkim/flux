@@ -63,7 +63,18 @@ void Editor::Run(std::string_view path) {
     raw_term.Flush();
 
     if (flux::Key key = raw_term.GetKey(); key != flux::Key::kNone) {
-      config_.key_bindings[mode_].GetCommand(key)(this, key);
+      const KeyBindings& bindings = config_.key_bindings[mode_];
+      chord_.push_back(key);
+      if (const Command::Function* function = bindings.MatchCommand(chord_);
+          function) {
+        (*function)(this, key);
+      } else {
+        bindings.GetFallback()(this, key);
+      }
+
+      if (!bindings.PrefixCommand(chord_) || bindings.MatchCommand(chord_)) {
+        chord_.clear();
+      }
     }
   }
 
