@@ -21,9 +21,11 @@ class KeyBindings {
 
   void SetFallback(Command::Function command);
 
-  Command::Function GetCommand(Key key) const;
+  const Command::Function& GetFallback() const;
 
-  Command::Function GetCommand(const Chord& key) const;
+  bool PrefixCommand(const Chord& chord) const;
+
+  const Command::Function* MatchCommand(const Chord& chord) const;
 
  private:
   pulse::Trie<Chord, Command::Function> map_;

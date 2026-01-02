@@ -38,6 +38,7 @@ class Editor {
   std::unique_ptr<StatusLine> status_line_;
   std::unique_ptr<CommandLine> command_line_;
   std::unique_ptr<View> view_;
+  KeyBindings::Chord chord_;
   Config config_;
   Mode mode_;
   bool running_;
