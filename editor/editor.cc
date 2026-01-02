@@ -128,6 +128,9 @@ void Editor::BindNormalModeKeys() {
                                                 Command::MoveCursorEnd(e);
                                               });
 
+  config_.key_bindings[Mode::kNormal].BindChord({Key::kd, Key::kd},
+                                                &Command::DeleteLine);
+
   config_.key_bindings[Mode::kNormal].SetFallback([](Editor*, Key) -> void {});
 }
 

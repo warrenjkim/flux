@@ -34,6 +34,8 @@ struct Command {
   static void MoveCursorStart(Editor* e, Key = Key::kNone);
 
   static void MoveCursorEnd(Editor* e, Key = Key::kNone);
+
+  static void DeleteLine(Editor* e, Key = Key::kNone);
 };
 
 }  // namespace flux
