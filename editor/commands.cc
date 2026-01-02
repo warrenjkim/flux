@@ -38,9 +38,25 @@ void Command::EnterNormalMode(Editor* e, Key) {
 
 void Command::EnterInsertMode(Editor* e, Key) { e->mode_ = Mode::kInsert; }
 
-void Command::MoveCursorUp(Editor* e, Key) { e->view_->MoveCursorUp(); }
+void Command::MoveCursorUp(Editor* e, Key) {
+  e->view_->MoveCursorUp();
 
-void Command::MoveCursorDown(Editor* e, Key) { e->view_->MoveCursorDown(); }
+  Buffer::Position pos = e->view_->GetBufferPosition();
+  size_t len = e->buffer_->GetLineLength(pos.row);
+  if (pos.col > len - (e->mode_ == Mode::kNormal && len > 0)) {
+    e->view_->MoveCursorLeft();
+  }
+}
+
+void Command::MoveCursorDown(Editor* e, Key) {
+  e->view_->MoveCursorDown();
+
+  Buffer::Position pos = e->view_->GetBufferPosition();
+  size_t len = e->buffer_->GetLineLength(pos.row);
+  if (pos.col > len - (e->mode_ == Mode::kNormal && len > 0)) {
+    e->view_->MoveCursorLeft();
+  }
+}
 
 void Command::MoveCursorLeft(Editor* e, Key) { e->view_->MoveCursorLeft(); }
 
@@ -54,6 +70,12 @@ void Command::MoveCursorRight(Editor* e, Key) {
 
 void Command::MoveCursorStart(Editor* e, Key) { e->view_->MoveCursorStart(); }
 
-void Command::MoveCursorEnd(Editor* e, Key) { e->view_->MoveCursorEnd(); }
+void Command::MoveCursorEnd(Editor* e, Key) {
+  e->view_->MoveCursorEnd();
+
+  if (e->mode_ == Mode::kNormal) {
+    e->view_->MoveCursorLeft();
+  }
+}
 
 }  // namespace flux
