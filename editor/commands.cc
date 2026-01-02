@@ -78,4 +78,8 @@ void Command::MoveCursorEnd(Editor* e, Key) {
   }
 }
 
+void Command::DeleteLine(Editor* e, Key) {
+  e->view_->UpdateCursor(e->buffer_->DeleteLine(e->view_->GetBufferPosition()));
+}
+
 }  // namespace flux

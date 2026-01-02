@@ -67,4 +67,21 @@ Buffer::Position VectorBuffer::Delete(Buffer::Position pos) {
   return pos;
 }
 
+Buffer::Position VectorBuffer::DeleteLine(Buffer::Position pos) {
+  if (buffer_.size() == 1) {
+    buffer_[0].clear();
+    return {.row = 0, .col = 0};
+  }
+
+  if (pos.row >= buffer_.size() - 1) {
+    buffer_.pop_back();
+    return {.row = --pos.row,
+            .col = std::min(pos.col, buffer_[pos.row].size())};
+  }
+
+  buffer_.erase(buffer_.begin() + pos.row);
+
+  return {.row = pos.row, .col = std::min(pos.col, buffer_[pos.row].size())};
+}
+
 }  // namespace flux

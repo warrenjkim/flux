@@ -28,6 +28,8 @@ class VectorBuffer : public Buffer {
 
   virtual Position Delete(Position pos) override;
 
+  virtual Position DeleteLine(Position pos) override;
+
  private:
   std::vector<std::string> buffer_;
 };
