@@ -45,11 +45,13 @@ void View::UpdateCursor(Buffer::Position pos, bool update_preferred_col) {
   } else if (pos.row >= offset_.row + viewport_.rows) {
     offset_.row = pos.row - viewport_.rows + 1;
   }
+
   if (pos.col < offset_.col) {
     offset_.col = pos.col;
   } else if (pos.col >= offset_.col + viewport_.cols) {
     offset_.col = pos.col - viewport_.cols + 1;
   }
+
   cursor_.row = pos.row - offset_.row;
   cursor_.col = pos.col - offset_.col;
   if (update_preferred_col) {
