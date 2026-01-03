@@ -9,21 +9,6 @@
 
 namespace flux {
 
-namespace {
-
-void NormalizeCursorColumn(size_t desired, size_t viewport_cols,
-                           size_t* offset_col, size_t* cursor_col) {
-  if (desired < *offset_col) {
-    *offset_col = desired;
-  } else if (desired >= *offset_col + viewport_cols) {
-    *offset_col = desired - viewport_cols + 1;
-  }
-
-  *cursor_col = desired - *offset_col;
-}
-
-}  // namespace
-
 View::View(Buffer* buffer_, ViewPort vp) : buffer_(*buffer_), viewport_(vp) {}
 
 void View::Draw(RawTerminal* terminal) {
@@ -54,102 +39,21 @@ Buffer::Position View::GetBufferPosition() const {
                           .col = cursor_.col + offset_.col};
 }
 
-void View::UpdateCursor(Buffer::Position pos) {
+void View::UpdateCursor(Buffer::Position pos, bool update_preferred_col) {
   if (pos.row < offset_.row) {
     offset_.row = pos.row;
   } else if (pos.row >= offset_.row + viewport_.rows) {
     offset_.row = pos.row - viewport_.rows + 1;
   }
-
   if (pos.col < offset_.col) {
     offset_.col = pos.col;
   } else if (pos.col >= offset_.col + viewport_.cols) {
     offset_.col = pos.col - viewport_.cols + 1;
   }
-
   cursor_.row = pos.row - offset_.row;
   cursor_.col = pos.col - offset_.col;
-}
-
-void View::MoveCursorUp() {
-  if (GetBufferPosition().row == 0) {
-    return;
-  }
-
-  if (cursor_.row > 0) {
-    cursor_.row--;
-  } else {
-    offset_.row--;
-  }
-
-  NormalizeCursorColumn(
-      std::min(cursor_.preferred_col,
-               buffer_.GetLineLength(GetBufferPosition().row)),
-      viewport_.cols, &offset_.col, &cursor_.col);
-}
-
-void View::MoveCursorDown() {
-  if (GetBufferPosition().row >= buffer_.Lines() - 1) {
-    return;
-  }
-
-  if (cursor_.row < viewport_.rows - 1) {
-    cursor_.row++;
-  } else {
-    offset_.row++;
-  }
-
-  NormalizeCursorColumn(
-      std::min(cursor_.preferred_col,
-               buffer_.GetLineLength(GetBufferPosition().row)),
-      viewport_.cols, &offset_.col, &cursor_.col);
-}
-
-void View::MoveCursorLeft() {
-  if (GetBufferPosition().col == 0) {
-    return;
-  }
-
-  if (cursor_.col > 0) {
-    cursor_.col--;
-  } else {
-    offset_.col--;
-  }
-
-  cursor_.preferred_col = GetBufferPosition().col;
-}
-
-void View::MoveCursorRight() {
-  if (Buffer::Position pos = GetBufferPosition();
-      pos.col >= buffer_.GetLineLength(pos.row)) {
-    return;
-  }
-
-  if (cursor_.col < viewport_.cols - 1) {
-    cursor_.col++;
-  } else {
-    offset_.col++;
-  }
-
-  cursor_.preferred_col = GetBufferPosition().col;
-}
-
-void View::MoveCursorStart() {
-  offset_.col = 0;
-  cursor_.col = 0;
-  cursor_.preferred_col = 0;
-}
-
-void View::MoveCursorEnd() {
-  if (size_t len = buffer_.GetLineLength(GetBufferPosition().row);
-      len <= viewport_.cols) {
-    offset_.col = 0;
-    cursor_.col = len;
-    cursor_.preferred_col = len;
-  } else {
-    offset_.col = len - viewport_.cols;
-    cursor_.col = viewport_.cols;
-    cursor_.preferred_col = len;
+  if (update_preferred_col) {
+    cursor_.preferred_col = pos.col;
   }
 }
 

@@ -39,47 +39,69 @@ void Command::EnterNormalMode(Editor* e, Key) {
 void Command::EnterInsertMode(Editor* e, Key) { e->mode_ = Mode::kInsert; }
 
 void Command::MoveCursorUp(Editor* e, Key) {
-  e->view_->MoveCursorUp();
-
   Buffer::Position pos = e->view_->GetBufferPosition();
-  size_t len = e->buffer_->GetLineLength(pos.row);
-  if (pos.col > len - (e->mode_ == Mode::kNormal && len > 0)) {
-    e->view_->MoveCursorLeft();
+  if (pos.row == 0) {
+    return;
   }
+
+  pos.row--;
+  size_t len = e->buffer_->GetLineLength(pos.row);
+  pos.col = std::min(e->view_->GetCursor().preferred_col,
+                     len - (e->mode_ == Mode::kNormal && len > 0));
+  e->view_->UpdateCursor(pos);
 }
 
 void Command::MoveCursorDown(Editor* e, Key) {
-  e->view_->MoveCursorDown();
-
   Buffer::Position pos = e->view_->GetBufferPosition();
-  size_t len = e->buffer_->GetLineLength(pos.row);
-  if (pos.col > len - (e->mode_ == Mode::kNormal && len > 0)) {
-    e->view_->MoveCursorLeft();
+  if (pos.row >= e->buffer_->Lines() - 1) {
+    return;
   }
+
+  pos.row++;
+  size_t len = e->buffer_->GetLineLength(pos.row);
+  pos.col = std::min(e->view_->GetCursor().preferred_col,
+                     len - (e->mode_ == Mode::kNormal && len > 0));
+  e->view_->UpdateCursor(pos);
 }
 
-void Command::MoveCursorLeft(Editor* e, Key) { e->view_->MoveCursorLeft(); }
+void Command::MoveCursorLeft(Editor* e, Key) {
+  Buffer::Position pos = e->view_->GetBufferPosition();
+  if (pos.col == 0) {
+    return;
+  }
+
+  pos.col--;
+  e->view_->UpdateCursor(pos, /*update_preferred_cols=*/true);
+}
 
 void Command::MoveCursorRight(Editor* e, Key) {
   Buffer::Position pos = e->view_->GetBufferPosition();
   size_t len = e->buffer_->GetLineLength(pos.row);
-  if (pos.col < len - (e->mode_ == Mode::kNormal && len > 0)) {
-    e->view_->MoveCursorRight();
+  size_t max_col = len - (e->mode_ == Mode::kNormal && len > 0);
+  if (pos.col < max_col) {
+    pos.col++;
+    e->view_->UpdateCursor(pos, /*update_preferred_cols=*/true);
   }
 }
 
-void Command::MoveCursorStart(Editor* e, Key) { e->view_->MoveCursorStart(); }
+void Command::MoveCursorStart(Editor* e, Key) {
+  Buffer::Position pos = e->view_->GetBufferPosition();
+  pos.col = 0;
+  e->view_->UpdateCursor(pos, /*update_preferred_col=*/true);
+}
 
 void Command::MoveCursorEnd(Editor* e, Key) {
-  e->view_->MoveCursorEnd();
-
-  if (e->mode_ == Mode::kNormal) {
-    e->view_->MoveCursorLeft();
-  }
+  Buffer::Position pos = e->view_->GetBufferPosition();
+  size_t len = e->buffer_->GetLineLength(pos.row);
+  pos.col = len - (e->mode_ == Mode::kNormal && len > 0);
+  e->view_->UpdateCursor(pos, /*update_preferred_col=*/true);
 }
 
 void Command::DeleteLine(Editor* e, Key) {
-  e->view_->UpdateCursor(e->buffer_->DeleteLine(e->view_->GetBufferPosition()));
+  Buffer::Position pos = e->buffer_->DeleteLine(e->view_->GetBufferPosition());
+  size_t len = e->buffer_->GetLineLength(pos.row);
+  pos.col = std::min(pos.col, len - (e->mode_ == Mode::kNormal && len > 0));
+  e->view_->UpdateCursor(pos, /*update_preferred_col=*/true);
 }
 
 }  // namespace flux
