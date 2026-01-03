@@ -17,6 +17,8 @@ class View {
 
   Cursor GetCursor() const;
 
+  Cursor GetScreenCursor() const;
+
   Buffer::Position GetBufferPosition() const;
 
   void UpdateCursor(Buffer::Position pos, bool update_preferred_col = false);
@@ -29,6 +31,7 @@ class View {
 
   Buffer& buffer_;
   ViewPort viewport_;
+  size_t gutter_offset_;
   Cursor cursor_;
   BufferOffset offset_;
 };

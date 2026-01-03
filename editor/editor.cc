@@ -58,7 +58,7 @@ void Editor::Run(std::string_view path) {
 
     command_line_->Draw(&raw_term);
 
-    raw_term.MoveCursor(view_->GetCursor());
+    raw_term.MoveCursor(view_->GetScreenCursor());
     raw_term.ShowCursor();
     raw_term.Flush();
 
