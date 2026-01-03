@@ -13,21 +13,23 @@ namespace flux {
 View::View(Buffer* buffer_, ViewPort vp) : buffer_(*buffer_), viewport_(vp) {}
 
 void View::Draw(RawTerminal* terminal) {
-  gutter_offset_ = floor(log10(buffer_.Lines())) + 2;
+  gutter_offset_ = static_cast<size_t>(floor(log10(buffer_.Lines()))) + 2;
   for (size_t i = 0; i < viewport_.rows; i++) {
-    std::string row = std::to_string(offset_.row + i + 1);
-    terminal->Write(row);
-    for (size_t j = 0; j < gutter_offset_ - row.size(); j++) {
-      terminal->Write(' ');
-    }
-
     if (i + offset_.row >= buffer_.Lines()) {
       terminal->Write("~");
-    } else if (std::string line = buffer_.GetLine(i + offset_.row);
-               offset_.col < line.size()) {
-      for (size_t j = 0;
-           j < std::min(viewport_.cols, line.size() - offset_.col); j++) {
-        terminal->Write(line[offset_.col + j]);
+    } else {
+      size_t row = offset_.row + i + 1;
+      terminal->Write(std::to_string(row) +
+                      std::string(gutter_offset_ - static_cast<size_t>(
+                                                       floor(log10(row) + 1)),
+                                  ' '));
+      if (std::string line = buffer_.GetLine(i + offset_.row);
+          offset_.col < line.size()) {
+        for (size_t j = 0; j < std::min(viewport_.cols - gutter_offset_,
+                                        line.size() - offset_.col);
+             j++) {
+          terminal->Write(line[offset_.col + j]);
+        }
       }
     }
 
@@ -60,8 +62,9 @@ void View::UpdateCursor(Buffer::Position pos, bool update_preferred_col) {
 
   if (pos.col < offset_.col) {
     offset_.col = pos.col;
-  } else if (pos.col >= offset_.col + viewport_.cols) {
-    offset_.col = pos.col - viewport_.cols + 1;
+  } else if (size_t text_cols = viewport_.cols - gutter_offset_;
+             pos.col >= offset_.col + text_cols) {
+    offset_.col = pos.col - text_cols + 1;
   }
 
   cursor_.row = pos.row - offset_.row;
