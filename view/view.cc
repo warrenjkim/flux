@@ -1,6 +1,7 @@
 #include "view/view.h"
 
 #include <algorithm>
+#include <cmath>
 
 #include "buffer/buffer.h"
 #include "terminal/raw_terminal.h"
@@ -12,7 +13,14 @@ namespace flux {
 View::View(Buffer* buffer_, ViewPort vp) : buffer_(*buffer_), viewport_(vp) {}
 
 void View::Draw(RawTerminal* terminal) {
+  gutter_offset_ = floor(log10(buffer_.Lines())) + 2;
   for (size_t i = 0; i < viewport_.rows; i++) {
+    std::string row = std::to_string(offset_.row + i + 1);
+    terminal->Write(row);
+    for (size_t j = 0; j < gutter_offset_ - row.size(); j++) {
+      terminal->Write(' ');
+    }
+
     if (i + offset_.row >= buffer_.Lines()) {
       terminal->Write("~");
     } else if (std::string line = buffer_.GetLine(i + offset_.row);
@@ -33,6 +41,10 @@ void View::Draw(RawTerminal* terminal) {
 void View::Resize(ViewPort viewport) { viewport_ = viewport; }
 
 Cursor View::GetCursor() const { return cursor_; }
+
+Cursor View::GetScreenCursor() const {
+  return {.row = cursor_.row, .col = cursor_.col + gutter_offset_};
+}
 
 Buffer::Position View::GetBufferPosition() const {
   return Buffer::Position{.row = cursor_.row + offset_.row,
