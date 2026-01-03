@@ -19,19 +19,7 @@ class View {
 
   Buffer::Position GetBufferPosition() const;
 
-  void UpdateCursor(Buffer::Position pos);
-
-  void MoveCursorUp();
-
-  void MoveCursorDown();
-
-  void MoveCursorLeft();
-
-  void MoveCursorRight();
-
-  void MoveCursorStart();
-
-  void MoveCursorEnd();
+  void UpdateCursor(Buffer::Position pos, bool update_preferred_col = false);
 
  private:
   struct BufferOffset {
