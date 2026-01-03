@@ -10,7 +10,10 @@
 
 namespace flux {
 
-View::View(Buffer* buffer_, ViewPort vp) : buffer_(*buffer_), viewport_(vp) {}
+View::View(Buffer* buffer_, ViewPort vp)
+    : buffer_(*buffer_),
+      viewport_(vp),
+      gutter_offset_(static_cast<size_t>(floor(log10(buffer_->Lines()))) + 2) {}
 
 void View::Draw(RawTerminal* terminal) {
   gutter_offset_ = static_cast<size_t>(floor(log10(buffer_.Lines()))) + 2;
